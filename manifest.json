@@ -1,0 +1,27 @@
+{
+  "short_name": "Rule 34",
+  "name": "Rule 34",
+  "description": "If it exists, there is porn of it. We have pokemon, my little pony, Other hentai, whatever you want.",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/squirrelcharts-boop/reimagined-carnival/refs/heads/main/favicon.svg",
+      "sizes": "150x150",
+      "purpose": "any"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/kurozenzen/r34-branding/main/assets/maskable_icon.svg",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/squirrelcharts-boop/reimagined-carnival/refs/heads/main/maskable_icon.svg",
+      "sizes": "768x768",
+      "purpose": "maskable"
+    }
+  ],
+  "lang": "en",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#ee3344",
+  "background_color": "#0b0024"
+}
