@@ -1,2 +1,3 @@
 User-agent: *
 Disallow:
+Sitemap: https://rule34.pics/sitemap_index.xml
