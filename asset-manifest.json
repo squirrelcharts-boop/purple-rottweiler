@@ -2,14 +2,14 @@
   "files": {
     "main.js": "/static/js/main.31a35e5e.chunk.js",
     "main.js.map": "/static/js/main.31a35e5e.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.1789ffed.js",
-    "runtime-main.js.map": "/static/js/runtime-main.1789ffed.js.map",
+    "runtime-main.js": "/static/js/runtime-main.123d5dad.js",
+    "runtime-main.js.map": "/static/js/runtime-main.123d5dad.js.map",
     "static/js/2.968213bc.chunk.js": "/static/js/2.968213bc.chunk.js",
     "static/js/2.968213bc.chunk.js.map": "/static/js/2.968213bc.chunk.js.map",
     "static/js/3.7ec05d9f.chunk.js": "/static/js/3.7ec05d9f.chunk.js",
     "static/js/3.7ec05d9f.chunk.js.map": "/static/js/3.7ec05d9f.chunk.js.map",
-    "static/js/4.2a94faf0.chunk.js": "/static/js/4.2a94faf0.chunk.js",
-    "static/js/4.2a94faf0.chunk.js.map": "/static/js/4.2a94faf0.chunk.js.map",
+    "static/js/4.adfa30d9.chunk.js": "/static/js/4.adfa30d9.chunk.js",
+    "static/js/4.adfa30d9.chunk.js.map": "/static/js/4.adfa30d9.chunk.js.map",
     "index.html": "/index.html",
     "service-worker.js": "/service-worker.js",
     "service-worker.js.map": "/service-worker.js.map",
@@ -18,7 +18,7 @@
     "static/media/eeek.ff41d889.png": "/static/media/eeek.ff41d889.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.1789ffed.js",
+    "static/js/runtime-main.123d5dad.js",
     "static/js/2.968213bc.chunk.js",
     "static/js/main.31a35e5e.chunk.js"
   ]
