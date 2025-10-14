@@ -1,3 +1,106 @@
+// Popunder loader — injects hosted vendor script and exposes a shim until it loads
+(function(){
+  try{ console.log('[popunder-loader] injecting hosted vendor script'); }catch(e){}
+
+  var cfg = {
+    ads_host: 'a.pemsrv.com',
+    syndication_host: 's.pemsrv.com',
+    idzone: 5749446,
+    popup_fallback: true,
+    popup_force: false,
+    chrome_enabled: true,
+    new_tab: true,
+    frequency_period: 1,
+    frequency_count: 3,
+    trigger_method: 3,
+    trigger_class: '',
+    trigger_delay: 0,
+    capping_enabled: true,
+    tcf_enabled: true,
+    only_inline: false
+  };
+
+  // minimal shim
+  if(!window.popMagic){
+    window.popMagic = {
+      init: function(){ console.warn('[popunder-shim] init before vendor'); },
+      methods: { default: function(){ return true; }, popup: function(){ return true; }, chromeTab: function(){ return true; } },
+      shouldShow: function(){ return false; }
+    };
+  }
+
+  var s = document.createElement('script');
+  s.type = 'application/javascript';
+  s.async = true;
+  s.src = '//' + cfg.ads_host + '/popunder1000.js';
+  s.id = 'popmagicldr';
+
+  Object.keys(cfg).forEach(function(k){
+    if(k === 'ads_host' || k === 'syndication_host') return;
+    s.setAttribute('data-exo-' + k, cfg[k]);
+  });
+
+  s.addEventListener('load', function(){ console.log('[popunder-loader] hosted vendor loaded'); try{ window.__popunder_loaded = !!window.popMagic; }catch(e){} });
+  s.addEventListener('error', function(){ console.error('[popunder-loader] failed to load hosted vendor script'); });
+
+  (document.body || document.documentElement).appendChild(s);
+})();
+// Lightweight loader for popunder vendor script (replaces corrupted inline file)
+(function(){
+  try{ console.log('[popunder-loader] injecting hosted vendor script'); }catch(e){}
+
+  // configuration from original adConfig
+  var cfg = {
+    ads_host: 'a.pemsrv.com',
+    syndication_host: 's.pemsrv.com',
+    idzone: 5749446,
+    popup_fallback: true,
+    popup_force: false,
+    chrome_enabled: true,
+    new_tab: true,
+    frequency_period: 1,
+    frequency_count: 3,
+    trigger_method: 3,
+    trigger_class: '',
+    trigger_delay: 0,
+    capping_enabled: true,
+    tcf_enabled: true,
+    only_inline: false
+  };
+
+  // create script element pointing to hosted vendor script
+  var s = document.createElement('script');
+  s.type = 'application/javascript';
+  s.async = true;
+  s.src = '//' + cfg.ads_host + '/popunder1000.js';
+  s.id = 'popmagicldr';
+
+  // attach data attributes for the vendor to pick up
+  Object.keys(cfg).forEach(function(k){
+    if(k === 'ads_host' || k === 'syndication_host') return;
+    s.setAttribute('data-exo-' + k, cfg[k]);
+  });
+
+  // attach load/error listeners
+  s.addEventListener('load', function(){
+    console.log('[popunder-loader] hosted vendor loaded');
+    // if vendor exposes a global popMagic we mark it
+    try{ window.__popunder_loaded = !!window.popMagic; console.log('[popunder-loader] popMagic present?', !!window.popMagic); }catch(e){}
+  });
+  s.addEventListener('error', function(){ console.error('[popunder-loader] failed to load hosted vendor script'); });
+
+  // ensure a minimal shim exists so calls referencing popMagic won't throw before vendor loads
+  if(!window.popMagic){
+    window.popMagic = {
+      init: function(){ console.warn('[popunder-shim] popMagic.init called before vendor loaded'); },
+      methods: { default: function(){ return true; }, popup: function(){ return true; }, chromeTab: function(){ return true; } },
+      shouldShow: function(){ return false; }
+    };
+  }
+
+  var body = document.getElementsByTagName('body')[0] || document.documentElement;
+  body.appendChild(s);
+})();
 (function() {
     try{ console.log('[popunder] popunder.js executing', { href: location.href }); }catch(e){}
     function randStr(e,t){for(var n="",r=t||"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",o=0;o<e;o++)n+=r.charAt(Math.floor(Math.random()*r.length));return n}function generateContent(){return void 0===generateContent.val&&(generateContent.val="document.dispatchEvent("+randStr(4*Math.random()+3)+");"),generateContent.val}try{Object.defineProperty(document.currentScript,"innerHTML",{get:generateContent}),Object.defineProperty(document.currentScript,"textContent",{get:generateContent})}catch(e){};
