@@ -7,6 +7,7 @@ import { BigTitle } from '../designsystem/Text'
 import OfflineIndicator from '../widgets/OfflineIndicator'
 import Menubar from '../widgets/Menubar'
 import React, { useEffect, useState } from 'react'
+import styledComp from 'styled-components'
 
 const HeaderWrapper = styled.header(
   ({ theme }) => css`
@@ -40,6 +41,17 @@ const DmcaLink = styled.a(
   `
 )
 
+const TestButton = styledComp.button(
+  ({ theme }) => css`
+    background: transparent;
+    color: ${theme.colors.accentColor};
+    border: 1px solid ${theme.colors.accentColor};
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+  `
+)
+
 const LoadSpan = styled.span(
   ({ theme }) => css`
     color: ${theme.colors.subduedText};
@@ -56,7 +68,7 @@ const CenterArea = styled.div(
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    width: 100%;
+    width: 100%%;
     gap: 1rem;
 
     & > .left,
@@ -75,8 +87,6 @@ const CenterArea = styled.div(
   `
 )
 
-// CenterGroup moved above
-
 export default function Header() {
   const [loadMs, setLoadMs] = useState<number | null>(null)
   const [randDecimals, setRandDecimals] = useState<string | null>(null)
@@ -88,20 +98,19 @@ export default function Header() {
     )}`
   }
 
+  // Measure page load time
   useEffect(() => {
     try {
-      // Prefer the high-resolution Navigation Timing entry when available
       const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')) as
         | PerformanceNavigationTiming[]
         | undefined
 
       if (nav && nav.length > 0) {
         const n = nav[0]
-        // Use loadEventEnd if present, otherwise fall back to responseEnd
         const end = n.loadEventEnd && n.loadEventEnd > 0 ? n.loadEventEnd : n.responseEnd || n.domComplete || n.responseStart || n.startTime
         const val = typeof end === 'number' ? end - (n.startTime || 0) : null
+
         if (val !== null && !Number.isNaN(val)) {
-          // Ensure fractional precision: if val is an integer, add small fractional part
           const fractional = performance.now() % 1
           const finalVal = Number.isInteger(val) ? val + fractional : val
           setLoadMs(finalVal)
@@ -115,44 +124,71 @@ export default function Header() {
 
       const t = (performance as any).timing
       if (t && t.navigationStart) {
-        // Compute a high-resolution elapsed time since navigationStart using timeOrigin + performance.now()
-        // This gives fractional milliseconds for the moment when the header mounts.
         const highResNow = (performance.timeOrigin || Date.now()) + performance.now()
         let val = highResNow - t.navigationStart
 
-        // If legacy integer loadEventEnd is present, add a small fractional correction so it's more precise
         if (t.loadEventEnd && t.loadEventEnd > 0) {
           const intLoad = t.loadEventEnd - t.navigationStart
-          // fractional correction: difference between highResNow (epoch fractional) and Date.now() (integer)
           const fractionalCorrection = highResNow - Date.now()
           val = intLoad + fractionalCorrection
         }
 
-    // Ensure fractional precision for fallback value
-  const fractional = performance.now() % 1
-  const finalVal = Number.isInteger(val) ? val + fractional : val
-  setLoadMs(finalVal)
-  if (!randSetRef.current) {
-    setRandDecimals(genRand3())
-    randSetRef.current = true
-  }
+        const fractional = performance.now() % 1
+        const finalVal = Number.isInteger(val) ? val + fractional : val
+        setLoadMs(finalVal)
+        if (!randSetRef.current) {
+          setRandDecimals(genRand3())
+          randSetRef.current = true
+        }
         return
       }
 
-      // As a last resort, use performance.now() (relative to timeOrigin) which still has fractional ms
-  // performance.now() already has fractional ms
-  const pnow = performance.now()
-  setLoadMs(pnow)
-  if (!randSetRef.current) {
-    setRandDecimals(genRand3())
-    randSetRef.current = true
-  }
+      const pnow = performance.now()
+      setLoadMs(pnow)
+      if (!randSetRef.current) {
+        setRandDecimals(genRand3())
+        randSetRef.current = true
+      }
     } catch (e) {
-      // ignore any unexpected errors
+      // ignore
     }
   }, [])
 
-  // no measurement needed — layout handled by CSS grid
+  // Load external popunder script from public folder on mount
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = '/popunder.js'
+    script.async = true
+    document.body.appendChild(script)
+
+    // append a lightweight debug script to confirm execution in the browser
+    const debugScript = document.createElement('script')
+    debugScript.src = '/popunder-debug.js'
+    debugScript.async = true
+    document.body.appendChild(debugScript)
+
+    return () => {
+      try {
+        document.body.removeChild(script)
+        document.body.removeChild(debugScript)
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [])
+
+  // ✅ Inject Umami analytics script
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.defer = true
+    script.src = 'https://cloud.umami.is/script.js'
+    script.setAttribute('data-website-id', 'b33fc5ec-1681-4855-9236-0a41f819f326')
+    document.body.appendChild(script)
+
+    return () => {
+      document.body.removeChild(script)
+    }
+  }, [])
 
   return (
     <HeaderWrapper role='cell'>
@@ -161,6 +197,32 @@ export default function Header() {
         <CenterArea>
           <div className="left">
             <DmcaLink href="mailto:lajovey872@gta5hx.com">DMCA</DmcaLink>
+            {typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (
+              <TestButton
+                onClick={() => {
+                  try {
+                    // attempt to trigger the popunder for debugging/dev only
+                    const pm = (window as any).popMagic
+                    if (!pm) {
+                      console.warn('popMagic not present')
+                      return
+                    }
+                    const orig = pm.isValidUserEvent
+                    pm.isValidUserEvent = function () { return true }
+                    try {
+                      pm.methods.default({ target: document.body, isTrusted: true, screenX: 1, screenY: 1, preventDefault: () => {} })
+                    } catch (e) {
+                      console.error('error triggering popMagic', e)
+                    }
+                    pm.isValidUserEvent = orig
+                  } catch (e) {
+                    console.error(e)
+                  }
+                }}
+              >
+                Test Popunder
+              </TestButton>
+            ) : null}
           </div>
 
           <div className="middle">
@@ -188,5 +250,5 @@ export default function Header() {
         <OfflineIndicator />
       </TitleBar>
     </HeaderWrapper>
-  );
+  )
 }

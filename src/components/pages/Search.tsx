@@ -115,6 +115,18 @@ export default function Search() {
     }
   }, [activeTags])
 
+  // Automatically trigger a search when active tags change (or on load if tags are present)
+  React.useEffect(() => {
+    const names = Object.keys(activeTags || {})
+    const id = setTimeout(() => {
+      if (names.length > 0) {
+        dispatch(getResults(0))
+      }
+    }, 100)
+
+    return () => clearTimeout(id)
+  }, [activeTags, dispatch])
+
   return (
     <>
       {resultsLayout === 'infinite_column' ? (
